@@ -31,55 +31,40 @@ class User(Base):
     	}
 
 
-class Property(Base):
-	__tablename__ = "category"
-	name = Column(
-		String(80), nullable = False)
+class Unit(Base):
+	__tablename__ = "unit"
+	address = Column(
+		String(180), nullable = False)
 	user_id = Column(
 		Integer, ForeignKey('user.id'))
 	id = Column(
 		Integer, primary_key = True)
 	user = relationship(User)
+	picture = Column(
+		String(80), nullable = True)
+	beds = Column(
+		Integer, nullable=False)
+	baths = Column(
+		Integer, nullable=False)
+	sq_feet = Column(
+		Integer, nullable=True)
+
 
 	@property
 	def serialize(self):
 		#Return object data in easily serializeable format
 		return {
-        	'name': self.name,
+        	'address': self.address,
         	'user_id': self.user_id,
         	'id': self.id,
+        	'beds': self.beds,
+        	'baths': self.baths,
+        	'sq_feet': self.sq_feet,
+        	'picture': self.picture,
     	}
-
-class Item(Base):
-	__tablename__ = 'item'
-	name = Column(String(80), nullable = False)
-	id = Column(Integer, primary_key = True)
-	description = Column(String(250))
-	price = Column(String(8))
-
-	category_id = Column(
-		Integer, ForeignKey('category.id'))
-	user_id = Column(
-		Integer, ForeignKey('user.id'))
-
-	category = relationship(Category, backref=backref('item', cascade='all, delete'))
-	user = relationship(User)
-
-	@property
-	def serialize(self):
-		# returns object data in easily serializable format
-		return{
-			'name': self.name,
-			'description': self.description,
-			'category_id': self.category_id,
-			'user_id': self.user_id,
-			'id': self.id,
-			'price': self.price,
-		}
-
 
 ######INSERT AT END OF FILE#####
 
-engine = create_engine('sqlite:///itemcatalog.db')
+engine = create_engine('sqlite:///homehuntermanager.db')
 
 Base.metadata.create_all(engine)

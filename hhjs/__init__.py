@@ -209,3 +209,19 @@ def gdisconnect():
         response = make_response(json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
+
+# JSON APIs to view unit information
+@app.route('/category/<int:unit_id>/unit/<int:unit_id>/JSON')
+def unitJSON(unit_id):
+    unit = session.query(Unit).filter_by(id=unit_id).one()
+    return jsonify(unit = unit.serialize)
+
+# Show all categories
+@app.route('/')
+@app.route('/unit/')
+def showUnits():
+    units = session.query(Units).order_by(asc(Category.name))
+    if 'username' not in login_session:
+        return render_template('publiccategories.html', categories=categories)
+    else:
+        return render_template('categories.html', categories=categories)
