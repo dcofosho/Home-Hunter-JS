@@ -3,11 +3,12 @@
 
 Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-16.04-i386"
-  config.vm.network "forwarded_port", guest: 9009, host: 9009, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", guest: 8089, host: 8089, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", guest: 5009, host: 5009, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 9089, host: 9089, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8099, host: 8099, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 5089, host: 5089, host_ip: "127.0.0.1"
     # Work around disconnected virtual network cable.
   config.vm.provider "virtualbox" do |vb|
+  	vb.gui = true
     vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
   end
 
@@ -28,9 +29,6 @@ Vagrant.configure("2") do |config|
 
     su postgres -c 'createuser -dRS vagrant'
     su vagrant -c 'createdb'
-    su vagrant -c 'createdb news'
-    su vagrant -c 'createdb forum'
-    su vagrant -c 'psql forum -f /vagrant/forum/forum.sql'
 
     vagrantTip="[35m[1mThe shared directory is located at /vagrant\\nTo access your shared files: cd /vagrant[m"
     echo -e $vagrantTip > /etc/motd

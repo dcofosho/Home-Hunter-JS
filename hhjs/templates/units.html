@@ -33,20 +33,20 @@
 	<div class="row padding-top padding-bottom">
 		<div class="col-md-1"></div>
 		<div class="col-md-10 padding-none">
-			<a href="{{url_for('newProperty')}}">
-				<button class="btn btn-default" id="new-property">
+			<a href="{{url_for('newUnit')}}">
+				<button class="btn btn-default" id="new-unit">
 					Add Property
 				</button>
 			</a>
 		</div>
 		<div class="col-md-1"></div>
 	</div>
-	{% for property in properties %}
-		<a href = "{{url_for('showProperty', property_id = property.id)}}">
+	{% for unit in units %}
+		<a href = "{{url_for('showUnit', unit_id = unit.id)}}">
 			<div class="row">
 				<div class="col-md-1"></div>
 					<div class="col-md-10 property-list">
-						<h3>{{property.address}}</h3>
+						<h3>{{unit.address}}</h3>
 					</div>
 				<div class="col-md-1"></div>
 			</div>

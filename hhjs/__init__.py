@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Category, Item, User
+from database_setup import Base, Unit, User
 from flask import session as login_session
 import random
 from oauth2client.client import flow_from_clientsecrets
@@ -20,7 +20,7 @@ APPLICATION_NAME = "Item Catalog Application"
 
 
 # Connect to Database and create database session
-engine = create_engine('sqlite:///itemcatalog.db')
+engine = create_engine('sqlite:///homehuntermanager.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -211,17 +211,90 @@ def gdisconnect():
         return response
 
 # JSON APIs to view unit information
-@app.route('/category/<int:unit_id>/unit/<int:unit_id>/JSON')
+@app.route('/unit/<int:unit_id>/JSON')
 def unitJSON(unit_id):
     unit = session.query(Unit).filter_by(id=unit_id).one()
     return jsonify(unit = unit.serialize)
 
-# Show all categories
+# Show all units
 @app.route('/')
 @app.route('/unit/')
 def showUnits():
-    units = session.query(Units).order_by(asc(Category.name))
+    units = session.query(Unit).order_by(asc(Unit.address))
     if 'username' not in login_session:
-        return render_template('publiccategories.html', categories=categories)
+        return render_template('publicunits.html', units=units)
     else:
-        return render_template('categories.html', categories=categories)
+        return render_template('units.html', units=units)
+# Show items in a category
+@app.route('/unit/<int:unit_id>/')
+@app.route('/unit/<int:unit_id>/units/')
+def showUnit(unit_id):
+    unit = session.query(Unit).filter_by(id=unit_id).one()
+    creator = getUserInfo(unit.user_id)
+    if 'username' not in login_session:
+    	return render_template('publicunits.html', unit=unit, creator=creator)
+    else:
+    	return render_template('unit.html', unit=unit, creator=creator)
+# Create a new category item
+@app.route('/unit/new/', methods=['GET', 'POST'])
+def newUnit():
+    if 'username' not in login_session:
+        return redirect('/login')
+    
+    if 'username' not in login_session:
+    	return "<script>function myFunction() {alert('You are not the owner of this category');} </script><body onload='myFunction()''>"
+    
+    if request.method == 'POST':
+        newUnit = Unit(address=request.form['address'], description=request.form[
+                           'description'], price=request.form['price'])
+        session.add(newUnit)
+        session.commit()
+        flash('New Item %s Successfully Created' % (newUnit.address))
+        return redirect(url_for('showUnits'))
+    else:
+        return render_template('newUnit.html')
+
+def getUserID(email):
+	try:
+		user = session.query(User).filter_by(email = email).one()
+		return user.id
+	except:
+		return None
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id = user_id).first()
+    return user
+
+def createUser(login_session):
+	newUser = User(name = login_session['username'], email = login_session['email'], picture = login_session['picture'])
+	session.add(newUser)
+	session.commit()
+	user = session.query(User).filter_by(email = login_session['email']).one()
+	return user.id
+
+# Disconnect based on provider
+@app.route('/disconnect')
+def disconnect():
+    if 'provider' in login_session:
+        if login_session['provider'] == 'google':
+            gdisconnect()
+            del login_session['gplus_id']
+            del login_session['credentials']
+        if login_session['provider'] == 'facebook':
+            fbdisconnect()
+            del login_session['facebook_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        del login_session['user_id']
+        del login_session['provider']
+        flash("You have successfully been logged out.")
+        return redirect(url_for('showUnits'))
+    else:
+        flash("You were not logged in")
+        return redirect(url_for('showUnits'))
+        
+if __name__ == '__main__':
+    app.secret_key = 'super_secret_key'
+    app.debug = True
+    app.run(host='0.0.0.0', port=9089)
