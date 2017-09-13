@@ -20,7 +20,7 @@ APPLICATION_NAME = "Item Catalog Application"
 
 
 # Connect to Database and create database session
-engine = create_engine('sqlite:///homehuntermanager.db')
+engine = create_engine('sqlite:///homehuntermanager3.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -246,7 +246,7 @@ def newUnit():
     
     if request.method == 'POST':
         newUnit = Unit(address=request.form['address'], description=request.form[
-                           'description'], price=request.form['price'])
+                           'description'], price=request.form['price'], user_id=getUserID(login_session['email']), beds=request.form['beds'], baths=request.form['baths'])
         session.add(newUnit)
         session.commit()
         flash('New Item %s Successfully Created' % (newUnit.address))
@@ -297,4 +297,4 @@ def disconnect():
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
-    app.run(host='0.0.0.0', port=9089)
+    app.run(host='0.0.0.0', port=9077)

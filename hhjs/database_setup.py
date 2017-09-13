@@ -35,6 +35,10 @@ class Unit(Base):
 	__tablename__ = "unit"
 	address = Column(
 		String(180), nullable = False)
+	price = Column(
+		String(10), nullable=False)
+	description = Column(
+		String(180), nullable = False)
 	user_id = Column(
 		Integer, ForeignKey('user.id'))
 	id = Column(
@@ -55,6 +59,7 @@ class Unit(Base):
 		#Return object data in easily serializeable format
 		return {
         	'address': self.address,
+        	'description': self.description,
         	'user_id': self.user_id,
         	'id': self.id,
         	'beds': self.beds,
@@ -62,9 +67,8 @@ class Unit(Base):
         	'sq_feet': self.sq_feet,
         	'picture': self.picture,
     	}
-
 ######INSERT AT END OF FILE#####
 
-engine = create_engine('sqlite:///homehuntermanager.db')
+engine = create_engine('sqlite:///homehuntermanager3.db')
 
 Base.metadata.create_all(engine)
